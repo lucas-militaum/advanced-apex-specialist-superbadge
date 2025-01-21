@@ -2,17 +2,18 @@
  * @name TestDataFactory
  * @description Contains methods to construct and/or validate commonly used records
 **/
-@isTest
 public with sharing class TestDataFactory {
 
     /**
      * @name ConstructCollaborationGroup
      * @description
     **/
-    public void ConstructCollaborationGroup(){
+    public static CollaborationGroup ConstructCollaborationGroup(){
         //ToDo: Ensure this method returns a single Chatter CollaborationGroup
         //    whose Name starts with 'TEST' followed by the INVENTORY_ANNOUNCEMENTS constant
         //    and configured so anyone can join, see and post updates.
+        CollaborationGroup collGroup = new CollaborationGroup(Name='TEST' + Constants.INVENTORY_ANNOUNCEMENTS, CollaborationType='Public');
+        return collGroup;
     }
 
     /**
@@ -31,7 +32,7 @@ public with sharing class TestDataFactory {
             prod.Name = 'Product ' + i;
             prod.IsActive = true;
             prod.Initial_Inventory__c = 10;
-            prod.Family = Constants.PRODUCT_FAMILY[Math.mod(i, 8)].getValue();
+            prod.Family = Constants.PRODUCT_FAMILY[Math.mod(i, 4)].getValue();
             prods.add(prod);
         }
 
@@ -55,6 +56,7 @@ public with sharing class TestDataFactory {
             pbe.Product2Id = prd.Id;
             pbe.IsActive = true;
             pbe.UnitPrice = (Decimal)100;
+            pbes.add(pbe);
         }
 
         return pbes;
@@ -64,51 +66,107 @@ public with sharing class TestDataFactory {
      * @name CreateAccounts
      * @description Constructs a list of Account records for unit tests
     **/
-    public void ConstructAccounts(Integer cnt){
+    public static List<Account> ConstructAccounts(Integer cnt){
         //ToDo: Ensure this method returns a list of size cnt of uniquely named Account records
         //  with all of the required fields populated.
+        List<Account> accs = new List<Account>();
+        for (Integer i = 0; i < cnt; i++) {
+            Account acc = new Account();
+            acc.Name = 'Account ' + i;
+            acc.Rating = 'Cold';
+            accs.add(acc);
+        }
+        return accs;
     }
 
     /**
      * @name CreateContacts
      * @description Constructs a list of Contacxt records for unit tests
     **/
-    public void ConstructContacts(Integer cnt, List<Account> accts){
+    public static List<Contact> ConstructContacts(Integer cnt, List<Account> accts){
         //ToDo: Ensure this method returns a list, of size cnt, of uniquely named Contact records
         //  related to the provided Accounts
         //  with all of the required fields populated.
+        List<Contact> cons = new List<Contact>();
+        for (Integer i = 0; i < cnt; i++) {
+            Contact con = new Contact();
+            con.LastName = 'Contact ' + i;
+            con.AccountId = accts[Math.mod(i, accts.size())].Id;
+            cons.add(con);
+        }
+
+        return cons;
     }
 
     /**
      * @name CreateOrders
      * @description Constructs a list of Order records for unit tests
     **/
-    public void ConstructOrders(Integer cnt, List<Account> accts){
+    public static List<Order> ConstructOrders(Integer cnt, List<Account> accts){
         //ToDo: Ensure this method returns a list of size cnt of uniquely named Order records
         //  related to the provided Accounts
         //  with all of the required fields populated.
+        List<Order> ords = new List<Order>();
+        for (Integer i = 0; i < cnt; i++) {
+            Order ord = new Order();
+            ord.Name = 'Order ' + i;
+            ord.AccountId = accts[Math.mod(i, accts.size())].Id;
+            ord.EffectiveDate = Date.today();
+            ord.Pricebook2Id = Constants.STANDARD_PRICEBOOK_ID;
+            ord.Status = Constants.DRAFT_ORDER_STATUS;
+            ords.add(ord);
+        }
+        return ords;
     }
 
     /**
      * @name CreateOrderItems
      * @description Constructs a list of OrderItem records for unit tests
     **/
-    public void ConstructOrderItems(integer cnt, list<pricebookentry> pbes, list<order> ords){
+    public static List<OrderItem> ConstructOrderItems(integer cnt, list<pricebookentry> pbes, list<order> ords){
         //ToDo: Ensure this method returns a list of size cnt of OrderItem records
         //  related to the provided Pricebook Entries
         //  and related to the provided Orders
         //  with all of the required fields populated.
         //  Hint: Use the DEFAULT_ROWS constant for Quantity as it will be used in the next challenge
+        List<OrderItem> ois = new List<OrderItem>();
+        for (Integer i = 0; i < cnt; i++) {
+            OrderItem ord = new OrderItem();
+            ord.PricebookEntryId = pbes[Math.mod(i, pbes.size())].Id;
+            ord.OrderId = ords[Math.mod(i, ords.size())].Id;
+            ord.Quantity = Constants.DEFAULT_ROWS;
+            ord.UnitPrice = (Decimal)100;
+
+            ois.add(ord);
+        }
+
+        return ois;
     }
 
     /**
      * @name SetupTestData
      * @description Inserts accounts, contacts, Products, PricebookEntries, Orders, and OrderItems.
     **/
-    public void InsertTestData(Integer cnt){
+    public static void InsertTestData(Integer cnt){
         //ToDo: Ensure this method calls each of the construct methods
         //  and inserts the results for use as test data.
+        List<Account> accts = ConstructAccounts(cnt);
+        insert accts;
 
+        List<Contact> cons = ConstructContacts(cnt, accts);
+        insert cons;
+
+        List<Product2> prods = ConstructProducts(cnt);
+        insert prods;
+
+        List<PriceBookEntry> pbes = ConstructPricebookEntries(prods);
+        insert pbes;
+
+        List<Order> ords = ConstructOrders(cnt, accts);
+        insert ords;
+
+        List<OrderItem> ois = ConstructOrderItems(cnt, pbes, ords);
+        insert ois;
     }
 
 }
