@@ -8,7 +8,4 @@ public class Constants {
     public static final String INVENTORY_ANNOUNCEMENTS = 'Inventory Announcements';
     public static final String ERROR_MESSAGE = 'An error has occurred, please take a screenshot with the URL and send it to IT.';
     public static final Id STANDARD_PRICEBOOK_ID = Test.isRunningTest() ? Test.getStandardPricebookId() : [SELECT Id FROM Pricebook2 WHERE IsStandard = true LIMIT 1].Id;
-
-    //SObject product info
-    public static final SObjectType productSObjectDescribe = Schema.getGlobalDescribe().get('Product2');
 }
