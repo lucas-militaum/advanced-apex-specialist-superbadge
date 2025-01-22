@@ -32,7 +32,8 @@ public with sharing class TestDataFactory {
             prod.Name = 'Product ' + i;
             prod.IsActive = true;
             prod.Initial_Inventory__c = 10;
-            prod.Family = Constants.PRODUCT_FAMILY[Math.mod(i, 4)].getValue();
+            prod.Family = Constants.PRODUCT_FAMILY[Math.mod(i, 3)].getValue();
+            prod.Quantity_Ordered__c = 0;
             prods.add(prod);
         }
 
@@ -50,6 +51,7 @@ public with sharing class TestDataFactory {
         //  and IsActive = true
         //  and belonging to the standard Pricebook
         List<PricebookEntry> pbes = new List<PricebookEntry>();
+        
         for (Product2 prd : prods) {
             PriceBookEntry pbe = new PricebookEntry();
             pbe.Pricebook2Id = Constants.STANDARD_PRICEBOOK_ID;
@@ -167,6 +169,10 @@ public with sharing class TestDataFactory {
 
         List<OrderItem> ois = ConstructOrderItems(cnt, pbes, ords);
         insert ois;
+    }
+
+    public static void VerifyQuantityOrdered(Product2 originalProduct, Product2 updatedProduct, Integer qtyOrdered) {
+        System.assertEquals(originalProduct.Quantity_Ordered__c + qtyOrdered, updatedProduct.Quantity_Ordered__c, 'Updated Qty should equal the sum of original with the qty ordered.');
     }
 
 }
